@@ -53,13 +53,27 @@ router.post('/', (req, res) => {
 
 
 router.post('/products', (req, res) => {
+    // landingPage에 let body 안에 있는 skip limit의 정보를 받아온다
+    // parseInt는 req.body.limit가 스트링인 경우에 넘버로 바꿔주는 역할을 합니다
+    // 만약에 req.body.limit이 있다면 지정해준걸로 리밋을 하고 없다면 리밋을 100으로 보여준다
+    let limit = req.body.limit ? parseInt(req.body.limit) : 100;
+    let skip = req.body.skip ? parseInt(req.body.limit) : 0;
+
+
     //product 콜렉션에 들어있는 모든 상품정보를 가져오자
 
     Product.find()
         .populate("writer")
+        .skip(skip)
+        .limit(limit)
+
         .exec((err, productInfo) => {
             if (err) return res.status(400).json({ success: false, err })
-            return res.status(200).json({ success: true, productInfo })
+            return res.status(200).json({
+                success: true, productInfo,
+
+                postSize: productInfo.length
+            })
         })
 });
 
